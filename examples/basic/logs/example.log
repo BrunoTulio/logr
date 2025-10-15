@@ -1,0 +1,3 @@
+{"level":"info","ts":"2025-10-14T21:43:28.654-0300","caller":"basic/simple_example.go:96","msg":"=== Exemplo com Arquivo ==="}
+{"level":"info","ts":"2025-10-14T21:43:28.654-0300","caller":"basic/simple_example.go:97","msg":"Log salvo em arquivo e console"}
+{"level":"info","ts":"2025-10-14T21:43:28.654-0300","caller":"basic/simple_example.go:102","msg":"Serviço configurado","service":"example","version":"1.0.0"}
