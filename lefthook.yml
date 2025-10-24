@@ -1,0 +1,62 @@
+pre-commit:
+  parallel: true  # Roda tudo em paralelo = mais rápido
+  commands:
+    fmt:
+      glob: "*.go"
+      run: gofmt -w {staged_files}
+      stage_fixed: true  # Adiciona as mudanças automaticamente
+    
+    lint:
+      glob: "*.go" 
+      run: golangci-lint run --fix {staged_files}
+      stage_fixed: true
+    
+    test:
+      glob: "*.go"
+      run: go test -short -race ./...
+
+# Hook para validar mensagem do commit (conventional commits)
+commit-msg:
+  commands:
+    check-message:
+      run: |
+        # Lê a mensagem do commit
+        MSG=$(head -1 {1})
+        
+        # Regex para validar conventional commits
+        PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\(.+\))?: .{3,}"
+        
+        if ! echo "$MSG" | grep -qE "$PATTERN"; then
+          echo ""
+          echo "❌ Mensagem de commit inválida!"
+          echo ""
+          echo "📝 Use o formato: tipo(escopo): descrição"
+          echo ""
+          echo "Tipos válidos:"
+          echo "  feat     - Nova funcionalidade"
+          echo "  fix      - Correção de bug"
+          echo "  docs     - Mudanças na documentação"
+          echo "  style    - Formatação, ponto e vírgula, etc"
+          echo "  refactor - Refatoração de código"
+          echo "  perf     - Melhoria de performance"
+          echo "  test     - Adição ou correção de testes"
+          echo "  build    - Mudanças no build/dependências"
+          echo "  ci       - Mudanças na CI/CD"
+          echo "  chore    - Outras mudanças (configs, etc)"
+          echo ""
+          echo "Exemplos válidos:"
+          echo "  feat: adiciona endpoint de usuários"
+          echo "  fix: corrige validação de email"
+          echo "  feat(auth): implementa login com JWT"
+          echo ""
+          exit 1
+        fi
+        
+        echo "✅ Mensagem de commit válida!"
+
+pre-push:
+  commands:
+    full-test:
+      run: |
+        echo "🧪 Rodando testes completos..."
+        go test -v -race -cover ./...
