@@ -28,6 +28,7 @@ const (
 func String(key, value string) Field {
 	return Field{Key: key, Value: value, Type: StringType}
 }
+
 func Bool(key string, value bool) Field {
 	return Field{Key: key, Value: value, Type: BoolType}
 }

@@ -5,9 +5,7 @@ import (
 	"io"
 )
 
-var (
-	l Logger = Noop{}
-)
+var l Logger = Noop{}
 
 func Set(logger Logger) {
 	l = logger
@@ -16,6 +14,7 @@ func Set(logger Logger) {
 func Info(message string) {
 	l.Info(message)
 }
+
 func Infof(format string, args ...interface{}) {
 	l.Infof(format, args...)
 }
@@ -23,6 +22,7 @@ func Infof(format string, args ...interface{}) {
 func Warn(message string) {
 	l.Warn(message)
 }
+
 func Warnf(format string, args ...interface{}) {
 	l.Warnf(format, args...)
 }
@@ -30,6 +30,7 @@ func Warnf(format string, args ...interface{}) {
 func Error(message string) {
 	l.Error(message)
 }
+
 func Errorf(format string, args ...interface{}) {
 	l.Errorf(format, args...)
 }
@@ -37,6 +38,7 @@ func Errorf(format string, args ...interface{}) {
 func Fatal(message string) {
 	l.Fatal(message)
 }
+
 func Fatalf(format string, args ...interface{}) {
 	l.Fatalf(format, args...)
 }
@@ -44,6 +46,7 @@ func Fatalf(format string, args ...interface{}) {
 func Debug(message string) {
 	l.Debug(message)
 }
+
 func Debugf(format string, args ...interface{}) {
 	l.Debugf(format, args...)
 }
@@ -51,6 +54,7 @@ func Debugf(format string, args ...interface{}) {
 func WithFields(field ...Field) Logger {
 	return l.WithFields(field...)
 }
+
 func WithField(field Field) Logger {
 	return l.WithField(field)
 }
@@ -58,9 +62,11 @@ func WithField(field Field) Logger {
 func ToContext(ctx context.Context) context.Context {
 	return l.ToContext(ctx)
 }
+
 func FromContext(ctx context.Context) Logger {
 	return l.FromContext(ctx)
 }
+
 func GetFields() Fields {
 	return l.GetFields()
 }

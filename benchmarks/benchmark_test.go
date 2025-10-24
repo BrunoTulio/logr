@@ -8,14 +8,14 @@ import (
 	"github.com/BrunoTulio/logr/adapters/zap.v1"
 )
 
-// Benchmark para comparar performance entre slog e zap
+// Benchmark para comparar performance entre slog e zap.
 func BenchmarkSlog_SimpleLog(b *testing.B) {
 	logger := slog.New(
 		slog.WithConsole(false), // Sem output para benchmark
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logger.Info("Simple log message")
 	}
 }
@@ -26,19 +26,19 @@ func BenchmarkZap_SimpleLog(b *testing.B) {
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logger.Info("Simple log message")
 	}
 }
 
-// Benchmark com campos estruturados
+// Benchmark com campos estruturados.
 func BenchmarkSlog_WithFields(b *testing.B) {
 	logger := slog.New(
 		slog.WithConsole(false),
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.WithFields(
 			logr.String("user_id", "12345"),
 			logr.Bool("active", true),
@@ -53,7 +53,7 @@ func BenchmarkZap_WithFields(b *testing.B) {
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.WithFields(
 			logr.String("user_id", "12345"),
 			logr.Bool("active", true),
@@ -62,14 +62,14 @@ func BenchmarkZap_WithFields(b *testing.B) {
 	}
 }
 
-// Benchmark com campos agrupados
+// Benchmark com campos agrupados.
 func BenchmarkSlog_WithGroupedFields(b *testing.B) {
 	logger := slog.New(
 		slog.WithConsole(false),
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logger.WithFields(
 			logr.Group("user",
 				logr.String("id", "12345"),
@@ -90,7 +90,7 @@ func BenchmarkZap_WithGroupedFields(b *testing.B) {
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logger.WithFields(
 			logr.Group("user",
 				logr.String("id", "12345"),
@@ -105,7 +105,7 @@ func BenchmarkZap_WithGroupedFields(b *testing.B) {
 	}
 }
 
-// Benchmark do logger global
+// Benchmark do logger global.
 func BenchmarkGlobalLogger(b *testing.B) {
 	logger := zap.New(
 		zap.WithConsole(false),
@@ -113,15 +113,15 @@ func BenchmarkGlobalLogger(b *testing.B) {
 	logr.Set(logger)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logr.Info("Global log message")
 	}
 }
 
-// Benchmark de criação de logger
+// Benchmark de criação de logger.
 func BenchmarkLoggerCreation_Slog(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = slog.New(
 			slog.WithConsole(false),
 		)
@@ -130,14 +130,14 @@ func BenchmarkLoggerCreation_Slog(b *testing.B) {
 
 func BenchmarkLoggerCreation_Zap(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = zap.New(
 			zap.WithConsole(false),
 		)
 	}
 }
 
-// Benchmark de formatação JSON vs TEXT
+// Benchmark de formatação JSON vs TEXT.
 func BenchmarkSlog_JSONFormat(b *testing.B) {
 	logger := slog.New(
 		slog.WithConsole(false),
@@ -145,7 +145,7 @@ func BenchmarkSlog_JSONFormat(b *testing.B) {
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.WithFields(
 			logr.String("message", "test"),
 			logr.Int("number", i),
@@ -160,7 +160,7 @@ func BenchmarkSlog_TEXTFormat(b *testing.B) {
 	)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		logger.WithFields(
 			logr.String("message", "test"),
 			logr.Int("number", i),

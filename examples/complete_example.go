@@ -9,6 +9,17 @@ import (
 	"github.com/BrunoTulio/logr/adapters/zap.v1"
 )
 
+const (
+	maxFileSizeMB      = 10 // tamanho máximo do arquivo em MB
+	retentionDays      = 7  // quantidade de dias para manter os logs
+	loginCount         = 42
+	scoreValue         = 95.7
+	sessionHours       = 2
+	totalAmount        = 299.99
+	sleepDuration      = 100 * time.Millisecond
+	processingDuration = 100 * time.Millisecond
+)
+
 func main() {
 	// Exemplo 1: Logger com Slog (padrão do Go)
 	demonstrateSlog()
@@ -43,7 +54,7 @@ func demonstrateSlog() {
 		slog.WithConsole(true),
 		slog.WithFile(true, "./logs", "slog_example.log"),
 		slog.WithFileFormatter("JSON"),
-		slog.WithFileRotation(10, 7, true), // 10MB, 7 dias, comprimir
+		slog.WithFileRotation(maxFileSizeMB, retentionDays, true), // 10MB, 7 dias, comprimir
 	)
 
 	fileLogger.WithFields(
@@ -75,10 +86,10 @@ func demonstrateZap() {
 		logr.String("user_id", "12345"),
 		logr.String("username", "joao_silva"),
 		logr.Bool("active", true),
-		logr.Int("login_count", 42),
-		logr.Float64("score", 95.7),
+		logr.Int("login_count", loginCount),
+		logr.Float64("score", scoreValue),
 		logr.Time("last_login", time.Now()),
-		logr.Duration("session_duration", time.Hour*2),
+		logr.Duration("session_duration", sessionHours),
 	)
 
 	userLogger.Info("Usuário logado com sucesso")
@@ -87,7 +98,7 @@ func demonstrateZap() {
 	orderLogger := logger.WithFields(
 		logr.Group("order",
 			logr.String("id", "ORD-12345"),
-			logr.Float64("total", 299.99),
+			logr.Float64("total", totalAmount),
 			logr.String("status", "completed"),
 		),
 		logr.Group("customer",
@@ -168,10 +179,10 @@ func processRequest(ctx context.Context, userID string) {
 	userLogger.Info("Processando requisição do usuário")
 
 	// Simular processamento
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(sleepDuration)
 
 	userLogger.WithFields(
-		logr.Duration("processing_time", 100*time.Millisecond),
+		logr.Duration("processing_time", processingDuration),
 		logr.Bool("success", true),
 	).Info("Requisição processada com sucesso")
 }

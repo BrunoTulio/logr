@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/BrunoTulio/logr"
-
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/BrunoTulio/logr"
 )
 
 type ctxKey struct{}
@@ -111,6 +111,7 @@ func (l *logger) WithField(field logr.Field) logr.Logger {
 
 // WithFields implements logger.Logger.
 func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
+	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
 	args := buildAttrs(newFields)
 
@@ -120,7 +121,6 @@ func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 		writer: l.writer,
 		fields: newFields,
 	}
-
 }
 
 func New(fns ...FnOption) *logger {
@@ -216,7 +216,6 @@ func buildHandlerAndWrite(o *Option) (slog.Handler, io.Writer) {
 		)
 		handlers = append(handlers, consoleHandler)
 		writers = append(writers, consoleWriter)
-
 	}
 
 	if o.File.Enabled {
@@ -232,7 +231,6 @@ func buildHandlerAndWrite(o *Option) (slog.Handler, io.Writer) {
 		)
 		handlers = append(handlers, consoleHandler)
 		writers = append(writers, fileWriter)
-
 	}
 
 	if len(handlers) == 0 {
@@ -245,7 +243,6 @@ func buildHandlerAndWrite(o *Option) (slog.Handler, io.Writer) {
 	combinedHandler := NewMultiHandler(handlers...)
 	combinedWriter := io.MultiWriter(writers...)
 	return combinedHandler, combinedWriter
-
 }
 
 func options(fns []FnOption) *Option {

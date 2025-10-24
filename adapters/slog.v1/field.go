@@ -16,7 +16,6 @@ func buildAttrGroup(fields []logr.Field) []any {
 }
 
 func buildAttr(f logr.Field) slog.Attr {
-
 	switch f.Type {
 	case logr.StringType:
 		return slog.String(f.Key, f.Value.(string))
@@ -38,7 +37,6 @@ func buildAttr(f logr.Field) slog.Attr {
 	default:
 		return slog.Attr{}
 	}
-
 }
 
 func buildAttrs(fields logr.Fields) []any {

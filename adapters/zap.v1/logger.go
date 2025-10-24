@@ -8,10 +8,9 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/BrunoTulio/logr"
-
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type ctxKey struct{}
@@ -108,6 +107,7 @@ func (l *logger) WithField(field logr.Field) logr.Logger {
 
 // WithFields implements logr.Logger.
 func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
+	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
 	args := buildSugaredArgs(newFields)
 
