@@ -1,14 +1,9 @@
 pre-commit:
   parallel: true  # Roda tudo em paralelo = mais rápido
-  commands:
-    fmt:
-      glob: "*.go"
-      run: gofmt -w {staged_files}
-      stage_fixed: true  # Adiciona as mudanças automaticamente
-    
+  commands:  
     lint:
-      glob: "*.go" 
-      run: golangci-lint run --fix {staged_files}
+      glob: "*.go"
+      run: golangci-lint run --fix ./...
       stage_fixed: true
     
     test:
