@@ -1,0 +1,10 @@
+name: pr
+on:
+  pull_request:
+jobs:
+  ci:
+    uses: ./.github/workflows/common.yml
+    with:
+      codecov: true
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
