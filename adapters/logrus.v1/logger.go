@@ -24,52 +24,52 @@ type logger struct {
 
 // Info implements logr.Logger.
 func (l *logger) Info(message string) {
-	l.logger.WithFields(buildFields(l.fields)).Info(message)
+	l.logger.Info(message)
 }
 
 // Infof implements logr.Logger.
 func (l *logger) Infof(format string, args ...interface{}) {
-	l.logger.WithFields(buildFields(l.fields)).Infof(format, args...)
+	l.logger.Infof(format, args...)
 }
 
 // Warn implements logr.Logger.
 func (l *logger) Warn(message string) {
-	l.logger.WithFields(buildFields(l.fields)).Warn(message)
+	l.logger.Warn(message)
 }
 
 // Warnf implements logr.Logger.
 func (l *logger) Warnf(format string, args ...interface{}) {
-	l.logger.WithFields(buildFields(l.fields)).Warnf(format, args...)
+	l.logger.Warnf(format, args...)
 }
 
 // Debug implements logr.Logger.
 func (l *logger) Debug(message string) {
-	l.logger.WithFields(buildFields(l.fields)).Debug(message)
+	l.logger.Debug(message)
 }
 
 // Debugf implements logr.Logger.
 func (l *logger) Debugf(format string, args ...interface{}) {
-	l.logger.WithFields(buildFields(l.fields)).Debugf(format, args...)
+	l.logger.Debugf(format, args...)
 }
 
 // Error implements logr.Logger.
 func (l *logger) Error(message string) {
-	l.logger.WithFields(buildFields(l.fields)).Error(message)
+	l.logger.Error(message)
 }
 
 // Errorf implements logr.Logger.
 func (l *logger) Errorf(format string, args ...interface{}) {
-	l.logger.WithFields(buildFields(l.fields)).Errorf(format, args...)
+	l.logger.Errorf(format, args...)
 }
 
 // Fatal implements logr.Logger.
 func (l *logger) Fatal(message string) {
-	l.logger.WithFields(buildFields(l.fields)).Fatal(message)
+	l.logger.Fatal(message)
 }
 
 // Fatalf implements logr.Logger.
 func (l *logger) Fatalf(format string, args ...interface{}) {
-	l.logger.WithFields(buildFields(l.fields)).Fatalf(format, args...)
+	l.logger.Fatalf(format, args...)
 }
 
 // FromContext implements logr.Logger.
