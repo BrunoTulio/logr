@@ -1,13 +1,13 @@
-package zap
+package zerolog
 
 import (
 	"context"
 	"io"
 	"os"
 	"path"
+	"time"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/rs/zerolog"
 	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/BrunoTulio/logr"
@@ -15,12 +15,12 @@ import (
 
 type ctxKey struct{}
 
-const callerSkip = 1
+const callerSkip = 8
 
 var _ logr.Logger = (*logger)(nil)
 
 type logger struct {
-	logger *zap.SugaredLogger
+	logger *zerolog.Logger
 	writer io.Writer
 	fields logr.Fields
 	option *Option
@@ -28,32 +28,32 @@ type logger struct {
 
 // Debug implements logr.Logger.
 func (l *logger) Debug(message string) {
-	l.logger.Debug(message)
+	l.logger.Debug().Msg(message)
 }
 
 // Debugf implements logr.Logger.
 func (l *logger) Debugf(format string, args ...interface{}) {
-	l.logger.Debugf(format, args...)
+	l.logger.Debug().Msgf(format, args...)
 }
 
 // Error implements logr.Logger.
 func (l *logger) Error(message string) {
-	l.logger.Error(message)
+	l.logger.Error().Msg(message)
 }
 
 // Errorf implements logr.Logger.
 func (l *logger) Errorf(format string, args ...interface{}) {
-	l.logger.Errorf(format, args...)
+	l.logger.Error().Msgf(format, args...)
 }
 
 // Fatal implements logr.Logger.
 func (l *logger) Fatal(message string) {
-	l.logger.Fatal(message)
+	l.logger.Fatal().Msg(message)
 }
 
 // Fatalf implements logr.Logger.
 func (l *logger) Fatalf(format string, args ...interface{}) {
-	l.logger.Fatalf(format, args...)
+	l.logger.Fatal().Msgf(format, args...)
 }
 
 // FromContext implements logr.Logger.
@@ -72,22 +72,12 @@ func (l *logger) GetFields() logr.Fields {
 
 // Info implements logr.Logger.
 func (l *logger) Info(message string) {
-	l.logger.Info(message)
+	l.logger.Info().Msg(message)
 }
 
 // Infof implements logr.Logger.
 func (l *logger) Infof(format string, args ...interface{}) {
-	l.logger.Infof(format, args...)
-}
-
-// Warn implements logr.Logger.
-func (l *logger) Warn(message string) {
-	l.logger.Warn(message)
-}
-
-// Warnf implements logr.Logger.
-func (l *logger) Warnf(format string, args ...interface{}) {
-	l.logger.Warnf(format, args...)
+	l.logger.Info().Msgf(format, args...)
 }
 
 // Output implements logr.Logger.
@@ -100,6 +90,16 @@ func (l *logger) ToContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, ctxKey{}, l.fields)
 }
 
+// Warn implements logr.Logger.
+func (l *logger) Warn(message string) {
+	l.logger.Warn().Msg(message)
+}
+
+// Warnf implements logr.Logger.
+func (l *logger) Warnf(format string, args ...interface{}) {
+	l.logger.Warn().Msgf(format, args...)
+}
+
 // WithField implements logr.Logger.
 func (l *logger) WithField(field logr.Field) logr.Logger {
 	return l.WithFields(field)
@@ -109,11 +109,12 @@ func (l *logger) WithField(field logr.Field) logr.Logger {
 func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
-	args := buildSugaredArgs(newFields)
+	args := buildAttrs(newFields)
+	newLogger := l.logger.With().Fields(args).Logger()
 
 	return &logger{
 		option: l.option,
-		logger: l.logger.With(args...),
+		logger: &newLogger,
 		writer: l.writer,
 		fields: newFields,
 	}
@@ -130,54 +131,68 @@ func NewWithOption(o *Option) *logger {
 	return l
 }
 
-func buildCoreAndWriter(o *Option) (zapcore.Core, io.Writer) {
-	cores := []zapcore.Core{}
-	var writers []io.Writer
-
-	if o.Console.Enabled {
-		level := buildLevel(o.Console.Level)
-		writer := zapcore.Lock(os.Stdout)
-		coreconsole := zapcore.NewCore(buildEncoder(o.Console.Formatter), writer, level)
-		cores = append(cores, coreconsole)
-		writers = append(writers, writer)
-	}
-
-	if o.File.Enabled {
-		lumber := &lumberjack.Logger{
-			Filename: path.Join(o.File.Path, o.File.Name),
-			MaxSize:  o.File.MaxSize,
-			Compress: o.File.Compress,
-			MaxAge:   o.File.MaxAge,
-		}
-
-		level := buildLevel(o.File.Level)
-		writer := zapcore.AddSync(lumber)
-		corefile := zapcore.NewCore(buildEncoder(o.File.Formatter), writer, level)
-		cores = append(cores, corefile)
-		writers = append(writers, lumber)
-	}
-
-	combinedCore := zapcore.NewTee(cores...)
-	combinedWriter := io.MultiWriter(writers...)
-
-	return combinedCore, combinedWriter
-}
-
 func newLogger(o *Option, fields ...logr.Field) *logger {
-	core, writer := buildCoreAndWriter(o)
-
-	sugar := zap.New(core,
-		zap.AddCaller(),
-		zap.AddCallerSkip(callerSkip),
-	).Sugar()
-
+	log, writer := buildLoggerAndWriter(o)
 	l := &logger{
 		option: o,
-		logger: sugar,
+		logger: &log,
 		writer: writer,
 		fields: fields,
 	}
 	return l
+}
+
+func buildLoggerAndWriter(o *Option) (zerolog.Logger, io.Writer) {
+	var writers []io.Writer
+
+	// Configura formato de hora padrão
+	zerolog.TimeFieldFormat = time.RFC3339
+
+	// Ajusta nível padrão
+	level := buildLevel(o.Level)
+
+	// Console (stdout)
+	if o.Console.Enabled {
+		writers = append(writers, createWriter(os.Stdout, o.Formatter, o.Console.ApplyColor))
+	}
+
+	// Arquivo (com rotação via lumberjack)
+	if o.File.Enabled {
+		fileWriter := &lumberjack.Logger{
+			Filename: path.Join(o.File.Path, o.File.Name),
+			MaxSize:  o.File.MaxSize,
+			MaxAge:   o.File.MaxAge,
+			Compress: o.File.Compress,
+		}
+		writers = append(writers, createWriter(fileWriter, o.Formatter, false))
+	}
+
+	if len(writers) == 0 {
+		writers = append(writers, io.Discard)
+	}
+
+	multi := io.MultiWriter(writers...)
+
+	logger := zerolog.New(multi).
+		Level(level).
+		With().
+		Timestamp().
+		CallerWithSkipFrameCount(callerSkip). // se quiser o arquivo/linha
+		Logger()
+
+	return logger, multi
+}
+
+func createWriter(out io.Writer, formatter string, applyColor bool) io.Writer {
+	if formatter == "TEXT" {
+		w := zerolog.ConsoleWriter{
+			Out:        out,
+			TimeFormat: time.RFC3339,
+			NoColor:    !applyColor,
+		}
+		return w
+	}
+	return out
 }
 
 func options(fns []FnOption) *Option {

@@ -1,0 +1,38 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*" # Gera o changelog quando uma tag com 'v*' é empurrada
+
+jobs:
+  ci:
+    uses: ./.github/workflows/common.yml # Reutiliza a configuração comum
+
+    with:
+      codecov: false # Desabilita o codecov para este workflow, se necessário
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
+
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install git-chglog
+        run: |
+          go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
+
+      - name: Generate changelog
+        run: |
+          git-chglog -o CHANGELOG.md  # Gera o changelog no formato Markdown
+
+      - name: Commit and push changelog changes
+        run: |
+          git add CHANGELOG.md
+          git commit -m "chore(release): update changelog"
+          git push --follow-tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

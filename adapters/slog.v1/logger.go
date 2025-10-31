@@ -2,22 +2,17 @@ package slog
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"path"
-	"path/filepath"
-	"runtime"
-
-	"github.com/BrunoTulio/logr"
 
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/BrunoTulio/logr"
 )
 
 type ctxKey struct{}
-
-const callerSkip = 8
 
 var _ logr.Logger = (*logger)(nil)
 
@@ -111,6 +106,7 @@ func (l *logger) WithField(field logr.Field) logr.Logger {
 
 // WithFields implements logger.Logger.
 func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
+	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
 	args := buildAttrs(newFields)
 
@@ -120,7 +116,6 @@ func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 		writer: l.writer,
 		fields: newFields,
 	}
-
 }
 
 func New(fns ...FnOption) *logger {
@@ -145,51 +140,10 @@ func newLogger(o *Option, fields ...logr.Field) *logger {
 	return l
 }
 
-func findModuleRoot(start string) string {
-	dir := start
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			break // chegou na raiz do FS
-		}
-		dir = parent
-	}
-	return start // fallback para o diretório atual
-}
-
 func buildHandlerOption(level string, addSource bool) *slog.HandlerOptions {
 	return &slog.HandlerOptions{
 		AddSource: addSource,
 		Level:     buildLevel(level),
-
-		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			if a.Key == slog.SourceKey {
-				_, file, line, ok := runtime.Caller(callerSkip)
-				if !ok {
-					return a // retorna original se falhar
-				}
-
-				// Encontra raiz do módulo para fazer o caminho relativo
-				wd, err := os.Getwd()
-				if err != nil {
-					wd = ""
-				}
-
-				moduleRoot := findModuleRoot(wd)
-				relPath, err := filepath.Rel(moduleRoot, file)
-				if err != nil {
-					relPath = file // fallback absoluto
-				}
-
-				// Define o novo formato: cmd/main.go:21
-				a.Key = "caller"
-				a.Value = slog.StringValue(fmt.Sprintf("%s:%d", relPath, line))
-			}
-			return a
-		},
 	}
 }
 
@@ -216,7 +170,6 @@ func buildHandlerAndWrite(o *Option) (slog.Handler, io.Writer) {
 		)
 		handlers = append(handlers, consoleHandler)
 		writers = append(writers, consoleWriter)
-
 	}
 
 	if o.File.Enabled {
@@ -232,7 +185,6 @@ func buildHandlerAndWrite(o *Option) (slog.Handler, io.Writer) {
 		)
 		handlers = append(handlers, consoleHandler)
 		writers = append(writers, fileWriter)
-
 	}
 
 	if len(handlers) == 0 {
@@ -245,7 +197,6 @@ func buildHandlerAndWrite(o *Option) (slog.Handler, io.Writer) {
 	combinedHandler := NewMultiHandler(handlers...)
 	combinedWriter := io.MultiWriter(writers...)
 	return combinedHandler, combinedWriter
-
 }
 
 func options(fns []FnOption) *Option {

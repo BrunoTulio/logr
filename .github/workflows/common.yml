@@ -1,0 +1,75 @@
+name: common
+on:
+  workflow_call:
+    inputs:
+      codecov:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      codecov_token:
+        required: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./go.mod
+
+      - name: Build Go
+        if: ${{ success() }}
+        run: |
+          go build -v ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./go.mod
+
+      - name: Lint Go
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.5.0
+          args: --timeout=10m
+
+  test:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - lint
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./go.mod
+
+      - name: Load test
+        run: |
+          go test ./...
+
+  codecov:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.codecov }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "^1.21.1"
+      - run: |
+          go test -coverprofile=coverage.out -covermode=atomic ./...
+      - uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          files: ./coverage.out
+          token: ${{ secrets.codecov_token }}
