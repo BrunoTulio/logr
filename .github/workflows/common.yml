@@ -6,6 +6,11 @@ on:
         required: false
         type: boolean
         default: false
+      codecov_verbose:
+        required: false
+        type: boolean
+        default: false
+
     secrets:
       codecov_token:
         required: false
@@ -66,14 +71,15 @@ jobs:
       - test
     if: ${{ inputs.codecov }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: "^1.21.1"
       - run: |
           go test -coverprofile=coverage.out -covermode=atomic ./...
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           files: ./coverage.out
           token: ${{ secrets.codecov_token }}
+          verbose: ${{ inputs.codecov_verbose }}
