@@ -24,16 +24,8 @@ func buildGroupMap(fields logr.Fields) map[string]interface{} {
 	for _, f := range fields {
 		switch f.Type {
 		case logr.GroupType:
-			// recursão para grupos aninhados
 			m[f.Key] = buildGroupMap(f.Value.([]logr.Field))
-		case logr.StringType:
-		case logr.BoolType:
-		case logr.IntType:
-		case logr.Uint64Type:
-		case logr.Float64Type:
-		case logr.TimeType:
-		case logr.DurationType:
-		default:
+		case logr.StringType, logr.BoolType, logr.IntType, logr.Uint64Type, logr.Float64Type, logr.TimeType, logr.DurationType:
 			m[f.Key] = f.Value
 		}
 	}
