@@ -60,6 +60,10 @@ jobs:
 
   codecov:
     runs-on: ubuntu-latest
+    needs:
+      - build
+      - lint
+      - test
     if: ${{ inputs.codecov }}
     steps:
       - uses: actions/checkout@v4
