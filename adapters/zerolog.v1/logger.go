@@ -120,12 +120,12 @@ func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 	}
 }
 
-func New(fns ...FnOption) *logger {
+func New(fns ...FnOption) logr.Logger {
 	option := options(fns)
 	return NewWithOption(option)
 }
 
-func NewWithOption(o *Option) *logger {
+func NewWithOption(o *Option) logr.Logger {
 	l := newLogger(o)
 	logr.Set(l)
 	return l
