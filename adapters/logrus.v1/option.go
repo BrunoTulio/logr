@@ -18,6 +18,7 @@ type Option struct {
 		MaxAge    int
 		Level     string
 	}
+	AddSource bool
 }
 
 func defaultOption() *Option {
@@ -67,5 +68,11 @@ func WithFileRotation(maxSize int, maxAge int, compress bool) FnOption {
 		option.File.MaxSize = maxSize
 		option.File.MaxAge = maxAge
 		option.File.Compress = compress
+	}
+}
+
+func WithAddSource(addSource bool) FnOption {
+	return func(option *Option) {
+		option.AddSource = addSource
 	}
 }

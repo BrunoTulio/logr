@@ -6,9 +6,10 @@ import (
 	"os"
 	"path"
 
-	"github.com/BrunoTulio/logr"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/BrunoTulio/logr"
 )
 
 type ctxKey struct{}
@@ -16,7 +17,7 @@ type ctxKey struct{}
 var _ logr.Logger = (*logger)(nil)
 
 type logger struct {
-	logger *logrus.Logger
+	logger *logrus.Entry
 	writer io.Writer
 	fields logr.Fields
 	option *Option
@@ -103,11 +104,12 @@ func (l *logger) WithField(field logr.Field) logr.Logger {
 
 // WithFields implements logr.Logger.
 func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
+	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
-
+	args := buildFields(newFields)
 	return &logger{
 		option: l.option,
-		logger: l.logger,
+		logger: l.logger.WithFields(args),
 		writer: l.writer,
 		fields: newFields,
 	}
@@ -126,7 +128,7 @@ func NewWithOption(o *Option) *logger {
 
 func newLogger(o *Option, fields ...logr.Field) *logger {
 	logrusLogger := logrus.New()
-	logrusLogger.SetLevel(logrus.InfoLevel) // default
+	logrusLogger.SetLevel(logrus.InfoLevel)
 
 	var writers []io.Writer
 
@@ -156,7 +158,7 @@ func newLogger(o *Option, fields ...logr.Field) *logger {
 
 	l := &logger{
 		option: o,
-		logger: logrusLogger,
+		logger: logrus.NewEntry(logrusLogger),
 		writer: combinedWriter,
 		fields: fields,
 	}
@@ -181,7 +183,7 @@ func options(fns []FnOption) *Option {
 	return option
 }
 
-// WriterHook is a logrus hook that writes to a custom writer
+// WriterHook is a logrus hook that writes to a custom writer.
 type WriterHook struct {
 	Writer    io.Writer
 	Formatter logrus.Formatter
