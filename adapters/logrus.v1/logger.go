@@ -130,6 +130,10 @@ func newLogger(o *Option, fields ...logr.Field) *logger {
 	logrusLogger := logrus.New()
 	logrusLogger.SetLevel(logrus.InfoLevel)
 
+	if o.AddSource {
+		logrusLogger.SetReportCaller(true)
+	}
+
 	var writers []io.Writer
 
 	if o.Console.Enabled {
