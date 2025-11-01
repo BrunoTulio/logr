@@ -8,5 +8,7 @@ jobs:
     uses: ./.github/workflows/common.yml
     with:
       codecov: true
+      coverage: false
+      threshold: 70
     secrets:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}

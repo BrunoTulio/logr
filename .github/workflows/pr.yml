@@ -6,5 +6,6 @@ jobs:
     uses: ./.github/workflows/common.yml
     with:
       codecov: true
+      coverage: false
     secrets:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}

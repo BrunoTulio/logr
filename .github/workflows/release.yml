@@ -10,7 +10,8 @@ jobs:
     uses: ./.github/workflows/common.yml # Reutiliza a configuração comum
 
     with:
-      codecov: false # Desabilita o codecov para este workflow, se necessário
+      codecov: false
+      coverage: false
     secrets:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
