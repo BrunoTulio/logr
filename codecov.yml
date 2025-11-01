@@ -1,7 +1,7 @@
 ignore:
   - "examples/**" # test helpers used to test Pub/Subs
 
-comment: no # do not comment PR with the result
+comment: false # do not comment PR with the result
 
 coverage:
   precision: 0
