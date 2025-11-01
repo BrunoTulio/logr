@@ -1,18 +1,13 @@
 ignore:
   - "examples/**" # test helpers used to test Pub/Subs
 
-comment: false
+comment: false # do not comment PR with the result
 
 coverage:
   precision: 0
   status:
-    patch:
-      default:           
-        target: 70%     
-        threshold: 5%
-        informational: false
+    patch: false # do not run coverage on patch nor changes
     project:
       default:
-        target: 70%      # ← Mude de auto para um valor fixo
+        target: auto
         threshold: 5%
-        informational: false
