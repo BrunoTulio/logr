@@ -2,6 +2,7 @@ package slog
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -30,7 +31,7 @@ func (l *logger) Info(message string) {
 
 // Infof implements logger.Logger.
 func (l *logger) Infof(format string, args ...interface{}) {
-	l.logger.Info(format, args...)
+	l.logger.Info(fmt.Sprintf(format, args...))
 }
 
 // Warn implements logger.Logger.
@@ -40,7 +41,7 @@ func (l *logger) Warn(message string) {
 
 // Warnf implements logger.Logger.
 func (l *logger) Warnf(format string, args ...interface{}) {
-	l.logger.Warn(format, args...)
+	l.logger.Warn(fmt.Sprintf(format, args...))
 }
 
 // Debug implements logger.Logger.
@@ -50,7 +51,7 @@ func (l *logger) Debug(message string) {
 
 // Debugf implements logger.Logger.
 func (l *logger) Debugf(format string, args ...interface{}) {
-	l.logger.Debug(format, args...)
+	l.logger.Debug(fmt.Sprintf(format, args...))
 }
 
 // Error implements logger.Logger.
@@ -60,7 +61,7 @@ func (l *logger) Error(message string) {
 
 // Errorf implements logger.Logger.
 func (l *logger) Errorf(format string, args ...interface{}) {
-	l.logger.Error(format, args...)
+	l.logger.Error(fmt.Sprintf(format, args...))
 }
 
 // Fatal implements logger.Logger.
@@ -71,7 +72,7 @@ func (l *logger) Fatal(message string) {
 
 // Fatalf implements logger.Logger.
 func (l *logger) Fatalf(format string, args ...interface{}) {
-	l.logger.Error(format, args...)
+	l.logger.Error(fmt.Sprintf(format, args...))
 	os.Exit(1)
 }
 
