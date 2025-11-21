@@ -2,7 +2,9 @@ package logr
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"os"
 )
 
 var _ Logger = Noop{}
@@ -22,10 +24,16 @@ func (n Noop) Error(message string) {}
 func (n Noop) Errorf(format string, args ...interface{}) {}
 
 // Fatal implements Logger.
-func (n Noop) Fatal(message string) {}
+func (n Noop) Fatal(message string) {
+	fmt.Fprintln(os.Stderr, "[FATAL]", message)
+	os.Exit(1)
+}
 
 // Fatalf implements Logger.
-func (n Noop) Fatalf(format string, args ...interface{}) {}
+func (n Noop) Fatalf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, "[FATAL] "+format+"\n", args...)
+	os.Exit(1)
+}
 
 // Fields implements Logger.
 func (n Noop) GetFields() Fields {
