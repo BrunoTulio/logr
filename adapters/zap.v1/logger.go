@@ -109,7 +109,7 @@ func (l *logger) WithField(field logr.Field) logr.Logger {
 func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
-	args := buildSugaredArgs(fields)
+	args := buildSugaredArgs(newFields)
 
 	return &logger{
 		option: l.option,
