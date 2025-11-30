@@ -15,12 +15,14 @@ import (
 
 type ctxKey struct{}
 
-const callerSkip = 1
+const callerSkip = 2
 
 var _ logr.Logger = (*logger)(nil)
 
 type logger struct {
 	logger *zap.SugaredLogger
+	core   zapcore.Core
+
 	writer io.Writer
 	fields logr.Fields
 	option *Option
@@ -62,6 +64,7 @@ func (l *logger) FromContext(ctx context.Context) logr.Logger {
 	if !ok {
 		fields = logr.Fields{}
 	}
+
 	return l.WithFields(fields...)
 }
 
@@ -110,12 +113,14 @@ func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
 	args := buildSugaredArgs(newFields)
+	newLogger := newSugaredLogger(l.core)
 
 	return &logger{
 		option: l.option,
-		logger: l.logger.With(args...),
+		logger: newLogger.With(args...),
 		writer: l.writer,
 		fields: newFields,
+		core:   l.core,
 	}
 }
 
@@ -166,13 +171,11 @@ func buildCoreAndWriter(o *Option) (zapcore.Core, io.Writer) {
 func newLogger(o *Option, fields ...logr.Field) *logger {
 	core, writer := buildCoreAndWriter(o)
 
-	sugar := zap.New(core,
-		zap.AddCaller(),
-		zap.AddCallerSkip(callerSkip),
-	).Sugar()
+	sugar := newSugaredLogger(core)
 
 	l := &logger{
 		option: o,
+		core:   core,
 		logger: sugar,
 		writer: writer,
 		fields: fields,
@@ -187,4 +190,11 @@ func options(fns []FnOption) *Option {
 		fn(option)
 	}
 	return option
+}
+
+func newSugaredLogger(core zapcore.Core) *zap.SugaredLogger {
+	return zap.New(core,
+		zap.AddCallerSkip(callerSkip),
+		zap.AddCaller(),
+	).Sugar()
 }

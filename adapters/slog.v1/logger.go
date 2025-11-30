@@ -18,10 +18,11 @@ type ctxKey struct{}
 var _ logr.Logger = (*logger)(nil)
 
 type logger struct {
-	logger *slog.Logger
-	writer io.Writer
-	fields logr.Fields
-	option *Option
+	logger  *slog.Logger
+	handler slog.Handler
+	writer  io.Writer
+	fields  logr.Fields
+	option  *Option
 }
 
 // Info implements logger.Logger.
@@ -82,7 +83,14 @@ func (l *logger) FromContext(ctx context.Context) logr.Logger {
 	if !ok {
 		fields = logr.Fields{}
 	}
-	return l.WithFields(fields...)
+	args := buildAttrs(fields)
+	return &logger{
+		option:  l.option,
+		logger:  slog.New(l.handler).With(args...),
+		handler: l.handler,
+		writer:  l.writer,
+		fields:  fields,
+	}
 }
 
 // GetFields implements logger.Logger.
@@ -112,10 +120,11 @@ func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 	args := buildAttrs(newFields)
 
 	return &logger{
-		option: l.option,
-		logger: l.logger.With(args...),
-		writer: l.writer,
-		fields: newFields,
+		option:  l.option,
+		logger:  slog.New(l.handler).With(args...),
+		writer:  l.writer,
+		fields:  newFields,
+		handler: l.handler,
 	}
 }
 
@@ -132,11 +141,13 @@ func NewWithOption(o *Option) logr.Logger {
 
 func newLogger(o *Option, fields ...logr.Field) *logger {
 	handler, writer := buildHandlerAndWrite(o)
+
 	l := &logger{
-		option: o,
-		logger: slog.New(handler),
-		writer: writer,
-		fields: fields,
+		option:  o,
+		logger:  slog.New(handler),
+		writer:  writer,
+		handler: handler,
+		fields:  fields,
 	}
 	return l
 }

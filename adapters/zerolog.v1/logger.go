@@ -58,11 +58,16 @@ func (l *logger) Fatalf(format string, args ...interface{}) {
 
 // FromContext implements logr.Logger.
 func (l *logger) FromContext(ctx context.Context) logr.Logger {
+	zerologger := zerolog.Ctx(ctx)
+	if zerologger.GetLevel() == zerolog.Disabled {
+		return l
+	}
+
 	fields, ok := ctx.Value(ctxKey{}).(logr.Fields)
 	if !ok {
 		fields = logr.Fields{}
 	}
-	return l.WithFields(fields...)
+	return &logger{logger: zerologger, fields: fields, writer: l.writer, option: l.option}
 }
 
 // GetFields implements logr.Logger.
@@ -87,7 +92,7 @@ func (l *logger) Output() io.Writer {
 
 // ToContext implements logr.Logger.
 func (l *logger) ToContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, ctxKey{}, l.fields)
+	return l.logger.WithContext(context.WithValue(ctx, ctxKey{}, l.fields))
 }
 
 // Warn implements logr.Logger.
@@ -107,16 +112,14 @@ func (l *logger) WithField(field logr.Field) logr.Logger {
 
 // WithFields implements logr.Logger.
 func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
-	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
-	newFields := append(l.fields, fields...)
-	args := buildAttrs(newFields)
+	args := buildAttrs(fields)
 	newLogger := l.logger.With().Fields(args).Logger()
 
 	return &logger{
 		option: l.option,
 		logger: &newLogger,
 		writer: l.writer,
-		fields: newFields,
+		fields: append(l.fields, fields...),
 	}
 }
 
