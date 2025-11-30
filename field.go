@@ -23,6 +23,7 @@ const (
 	TimeType
 	DurationType
 	GroupType
+	AnyType
 )
 
 func String(key, value string) Field {
@@ -55,4 +56,8 @@ func Duration(key string, value time.Duration) Field {
 
 func Group(name string, fields ...Field) Field {
 	return Field{Key: name, Value: fields, Type: GroupType}
+}
+
+func Any(key string, value any) Field {
+	return Field{Key: key, Value: value, Type: AnyType}
 }
