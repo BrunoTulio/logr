@@ -29,6 +29,8 @@ func buildAttr(f logr.Field) slog.Attr {
 		return slog.Float64(f.Key, f.Value.(float64))
 	case logr.TimeType:
 		return slog.Time(f.Key, f.Value.(time.Time))
+	case logr.AnyType:
+		return slog.Any(f.Key, f.Value)
 	case logr.DurationType:
 		return slog.Duration(f.Key, f.Value.(time.Duration))
 	case logr.GroupType:

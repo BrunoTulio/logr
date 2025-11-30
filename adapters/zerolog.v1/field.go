@@ -24,6 +24,8 @@ func buildAttrs(fields []logr.Field) map[string]any {
 			m[f.Key] = f.Value.(time.Time)
 		case logr.DurationType:
 			m[f.Key] = f.Value.(time.Duration)
+		case logr.AnyType:
+			m[f.Key] = f.Value
 		case logr.GroupType:
 			groupFields := f.Value.([]logr.Field)
 			m[f.Key] = buildAttrs(groupFields)

@@ -25,7 +25,7 @@ func buildGroupMap(fields logr.Fields) map[string]interface{} {
 		switch f.Type {
 		case logr.GroupType:
 			m[f.Key] = buildGroupMap(f.Value.([]logr.Field))
-		case logr.StringType, logr.BoolType, logr.IntType, logr.Uint64Type, logr.Float64Type, logr.TimeType, logr.DurationType:
+		case logr.StringType, logr.BoolType, logr.IntType, logr.Uint64Type, logr.Float64Type, logr.TimeType, logr.DurationType, logr.AnyType:
 			m[f.Key] = f.Value
 		}
 	}
