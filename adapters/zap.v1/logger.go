@@ -124,6 +124,19 @@ func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 	}
 }
 
+func (l *logger) WithMap(m map[string]any) logr.Logger {
+	if len(m) == 0 {
+		return l
+	}
+
+	fields := make(logr.Fields, 0, len(m))
+	for k, v := range m {
+		fields = append(fields, logr.Any(k, v))
+	}
+
+	return l.WithFields(fields...)
+}
+
 func New(fns ...FnOption) logr.Logger {
 	option := options(fns)
 	return NewWithOption(option)
