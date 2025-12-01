@@ -82,3 +82,8 @@ func (n Noop) WithField(field Field) Logger {
 func (n Noop) WithFields(fields ...Field) Logger {
 	return n
 }
+
+// WithField implements Logger.
+func (n Noop) WithMap(m map[string]any) Logger {
+	return n
+}

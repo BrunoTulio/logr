@@ -23,6 +23,7 @@ type Logger interface {
 
 	WithFields(fields ...Field) Logger
 	WithField(field Field) Logger
+	WithMap(m map[string]any) Logger
 
 	ToContext(ctx context.Context) context.Context
 	FromContext(ctx context.Context) Logger

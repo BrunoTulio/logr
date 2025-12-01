@@ -59,6 +59,10 @@ func WithField(field Field) Logger {
 	return l.WithField(field)
 }
 
+func WithMap(m map[string]any) Logger {
+	return l.WithMap(m)
+}
+
 func ToContext(ctx context.Context) context.Context {
 	return l.ToContext(ctx)
 }
