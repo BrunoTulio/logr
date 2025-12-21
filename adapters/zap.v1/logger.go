@@ -113,7 +113,7 @@ func (l *logger) WithFields(fields ...logr.Field) logr.Logger {
 	//nolint:gocritic // appendAssign: necessário criar nova slice para manter imutabilidade
 	newFields := append(l.fields, fields...)
 	args := buildSugaredArgs(newFields)
-	newLogger := newSugaredLogger(l.core)
+	newLogger := newSugaredLogger(l.core, l.option.EnableCaller)
 
 	return &logger{
 		option: l.option,
@@ -184,7 +184,7 @@ func buildCoreAndWriter(o *Option) (zapcore.Core, io.Writer) {
 func newLogger(o *Option, fields ...logr.Field) *logger {
 	core, writer := buildCoreAndWriter(o)
 
-	sugar := newSugaredLogger(core)
+	sugar := newSugaredLogger(core, o.EnableCaller)
 
 	l := &logger{
 		option: o,
@@ -205,9 +205,20 @@ func options(fns []FnOption) *Option {
 	return option
 }
 
-func newSugaredLogger(core zapcore.Core) *zap.SugaredLogger {
+func newSugaredLogger(
+	core zapcore.Core,
+	enableCaller bool,
+) *zap.SugaredLogger {
+	opts := []zap.Option{}
+
+	if enableCaller {
+		opts = append(opts,
+			zap.AddCaller(),
+			zap.AddCallerSkip(callerSkip),
+		)
+	}
+
 	return zap.New(core,
-		zap.AddCallerSkip(callerSkip),
-		zap.AddCaller(),
+		opts...,
 	).Sugar()
 }

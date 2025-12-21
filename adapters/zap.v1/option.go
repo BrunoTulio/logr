@@ -3,7 +3,8 @@ package zap
 type FnOption func(option *Option)
 
 type Option struct {
-	Console struct {
+	EnableCaller bool
+	Console      struct {
 		Enabled   bool
 		Level     string
 		Formatter string
@@ -22,6 +23,12 @@ type Option struct {
 
 func defaultOption() *Option {
 	return &Option{}
+}
+
+func WithEnableCaller(enabled bool) FnOption {
+	return func(option *Option) {
+		option.EnableCaller = enabled
+	}
 }
 
 func WithConsoleLevel(level string) FnOption {
