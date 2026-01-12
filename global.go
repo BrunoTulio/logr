@@ -7,6 +7,10 @@ import (
 
 var l Logger = Noop{}
 
+func Get() Logger {
+	return l
+}
+
 func Set(logger Logger) {
 	l = logger
 }
