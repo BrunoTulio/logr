@@ -25,6 +25,10 @@ type logger struct {
 	option  *Option
 }
 
+func (l *logger) Sync() error {
+	return nil
+}
+
 // Info implements logger.Logger.
 func (l *logger) Info(message string) {
 	l.logger.Info(message)

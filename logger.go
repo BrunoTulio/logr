@@ -30,4 +30,6 @@ type Logger interface {
 	GetFields() Fields
 
 	Output() io.Writer
+
+	Sync() error
 }

@@ -11,8 +11,9 @@ func Get() Logger {
 	return l
 }
 
-func Set(logger Logger) {
+func Set(logger Logger) Logger {
 	l = logger
+	return l
 }
 
 func Info(message string) {

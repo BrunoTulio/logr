@@ -11,6 +11,10 @@ var _ Logger = Noop{}
 
 type Noop struct{}
 
+func (n Noop) Sync() error {
+	return nil
+}
+
 // Debug implements Logger.
 func (n Noop) Debug(message string) {}
 
