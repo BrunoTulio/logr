@@ -1,3 +1,4 @@
 .vscode/
+.idea
 examples/basic/logs/*
 !examples/basic/logs/.gitkeep
